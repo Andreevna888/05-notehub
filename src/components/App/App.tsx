@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchNotes, deleteNote } from '../../services/noteService';
+import { useQuery } from '@tanstack/react-query';
+import { fetchNotes } from '../../services/noteService';
 import NoteList from '../NoteList/NoteList';
 import SearchBox from '../SearchBox/SearchBox';
 import Pagination from '../Pagination/Pagination';
@@ -12,18 +12,10 @@ function App() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const queryClient = useQueryClient();
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['notes', page, search],
     queryFn: () => fetchNotes({ page, perPage: 12, search }),
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: deleteNote,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notes'] });
-    },
   });
 
   const handleSearch = (value: string) => {
@@ -59,12 +51,7 @@ function App() {
         <p className={css.message}>No notes found.</p>
       )}
 
-      {data && data.notes.length > 0 && (
-        <NoteList
-          notes={data.notes}
-          onDelete={id => deleteMutation.mutate(id)}
-        />
-      )}
+      {data && data.notes.length > 0 && <NoteList notes={data.notes} />}
 
       {isModalOpen && (
         <Modal onClose={() => setIsModalOpen(false)}>
