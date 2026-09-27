@@ -1,21 +1,18 @@
-import { useDebouncedCallback } from 'use-debounce';
 import css from './SearchBox.module.css';
 
 interface SearchBoxProps {
+  value: string;
   onSearch: (value: string) => void;
 }
 
-function SearchBox({ onSearch }: SearchBoxProps) {
-  const debouncedSearch = useDebouncedCallback((value: string) => {
-    onSearch(value);
-  }, 500);
-
+function SearchBox({ value, onSearch }: SearchBoxProps) {
   return (
     <input
       className={css.input}
       type="text"
       placeholder="Search notes"
-      onChange={e => debouncedSearch(e.target.value)}
+      value={value}
+      onChange={e => onSearch(e.target.value)}
     />
   );
 }

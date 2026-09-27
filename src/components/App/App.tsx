@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
+import { useDebouncedCallback } from 'use-debounce';
 import { fetchNotes } from '../../services/noteService';
 import NoteList from '../NoteList/NoteList';
 import SearchBox from '../SearchBox/SearchBox';
@@ -9,6 +10,7 @@ import NoteForm from '../NoteForm/NoteForm';
 import css from './App.module.css';
 
 function App() {
+  const [inputValue, setInputValue] = useState('');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -19,15 +21,20 @@ function App() {
     placeholderData: keepPreviousData,
   });
 
-  const handleSearch = (value: string) => {
+  const debouncedSetSearch = useDebouncedCallback((value: string) => {
     setSearch(value);
     setPage(1);
+  }, 500);
+
+  const handleSearch = (value: string) => {
+    setInputValue(value);
+    debouncedSetSearch(value);
   };
 
   return (
     <div className={css.app}>
       <header className={css.toolbar}>
-        <SearchBox onSearch={handleSearch} />
+        <SearchBox value={inputValue} onSearch={handleSearch} />
         {data && data.totalPages > 1 && (
           <Pagination
             pageCount={data.totalPages}
